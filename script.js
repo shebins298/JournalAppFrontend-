@@ -35,7 +35,7 @@ submitBtn.addEventListener('click', async () => {
   console.log("Submitting journal entry:", entry);
 
   try {
-    const res = await fetch('https://YOUR_CLOUD_RUN_URL/analyze', {
+    const res = await fetch('https://journalgemini-989444157242.us-central1.run.app/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ entry, email: userEmail })
