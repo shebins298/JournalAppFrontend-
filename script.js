@@ -1,4 +1,4 @@
-import { auth, provider, signInWithPopup } from './firebase-config.js';
+import { auth, provider, signInWithPopup, setPersistence, browserLocalPersistence, onAuthStateChanged } from './firebase-config.js';
 
 const loginBtn = document.getElementById('login-btn');
 const journalSection = document.getElementById('journal-section');
@@ -7,7 +7,25 @@ const responseBox = document.getElementById('response-box');
 
 let userEmail = null;
 
-// Google Login
+// Set persistent login
+setPersistence(auth, browserLocalPersistence)
+  .then(() => {
+    console.log("Auth persistence set to local.");
+  })
+  .catch((error) => {
+    console.error("Error setting persistence:", error);
+  });
+
+// Auto login if already signed in
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    userEmail = user.email;
+    document.getElementById('login-section').classList.add('hidden');
+    journalSection.classList.remove('hidden');
+    console.log("User already logged in as:", userEmail);
+  }
+});
+
 loginBtn.addEventListener('click', async () => {
   try {
     console.log("Attempting login...");
@@ -24,15 +42,14 @@ loginBtn.addEventListener('click', async () => {
   }
 });
 
-// Submit journal entry
 submitBtn.addEventListener('click', async () => {
-  const entry = document.getElementById('journal-text').value.trim();
-  if (!entry) {
+  const entry = document.getElementById('journal-text').value;
+  if (!entry.trim()) {
     alert("Please write something first.");
     return;
   }
 
-  responseBox.innerHTML = "Processing...";
+  responseBox.innerHTML = "<em>Processing...</em>";
   console.log("Submitting journal entry:", entry);
 
   try {
@@ -46,7 +63,7 @@ submitBtn.addEventListener('click', async () => {
     console.log("Response from server:", data);
 
     if (data.advice) {
-      responseBox.innerHTML = data.advice.replace(/\n/g, '<br>');
+      responseBox.innerHTML = `<div class="advice">${data.advice.replace(/\n/g, '<br>')}</div>`;
     } else {
       responseBox.textContent = "No advice returned.";
     }
