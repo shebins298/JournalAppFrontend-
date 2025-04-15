@@ -3,6 +3,8 @@ import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
+  setPersistence,
+  browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -15,5 +17,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+
+// Set Firebase authentication persistence to Local (session persists even after page reload)
+setPersistence(auth, browserLocalPersistence)
+  .then(() => {
+    console.log("Authentication persistence set to local.");
+  })
+  .catch((error) => {
+    console.error("Error setting persistence:", error);
+  });
 
 export { auth, provider, signInWithPopup };
