@@ -1,13 +1,23 @@
-import { auth, provider, signInWithPopup, setPersistence, browserLocalPersistence, onAuthStateChanged } from './firebase-config.js';
+// script.js
+import {
+  auth,
+  provider,
+  setPersistence,
+  browserLocalPersistence,
+  onAuthStateChanged,
+  signInWithPopup,
+  signOut
+} from './firebase-config.js';
 
 const loginBtn = document.getElementById('login-btn');
+const logoutBtn = document.getElementById('logout-btn');
 const journalSection = document.getElementById('journal-section');
 const submitBtn = document.getElementById('submit-entry');
 const responseBox = document.getElementById('response-box');
 
 let userEmail = null;
 
-// Set persistent login
+// Set persistent login using local persistence
 setPersistence(auth, browserLocalPersistence)
   .then(() => {
     console.log("Auth persistence set to local.");
@@ -16,7 +26,7 @@ setPersistence(auth, browserLocalPersistence)
     console.error("Error setting persistence:", error);
   });
 
-// Auto login if already signed in
+// Auto login check
 onAuthStateChanged(auth, (user) => {
   if (user) {
     userEmail = user.email;
@@ -28,17 +38,29 @@ onAuthStateChanged(auth, (user) => {
 
 loginBtn.addEventListener('click', async () => {
   try {
-    console.log("Attempting login...");
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
     userEmail = user.email;
-    console.log("Logged in as:", userEmail);
-
     document.getElementById('login-section').classList.add('hidden');
     journalSection.classList.remove('hidden');
   } catch (error) {
     console.error("Login failed:", error);
     alert("Login failed. Check console for details.");
+  }
+});
+
+logoutBtn.addEventListener('click', async () => {
+  try {
+    await signOut(auth);
+    userEmail = null;
+    journalSection.classList.add('hidden');
+    document.getElementById('login-section').classList.remove('hidden');
+    responseBox.innerHTML = "";
+    document.getElementById('journal-text').value = "";
+    console.log("User logged out.");
+  } catch (error) {
+    console.error("Logout failed:", error);
+    alert("Logout failed. See console for details.");
   }
 });
 
