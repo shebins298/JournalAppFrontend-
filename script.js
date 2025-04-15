@@ -1,4 +1,3 @@
-
 import { auth, provider, signInWithPopup } from './firebase-config.js';
 
 const loginBtn = document.getElementById('login-btn');
@@ -8,6 +7,7 @@ const responseBox = document.getElementById('response-box');
 
 let userEmail = null;
 
+// Google Login
 loginBtn.addEventListener('click', async () => {
   try {
     console.log("Attempting login...");
@@ -24,14 +24,15 @@ loginBtn.addEventListener('click', async () => {
   }
 });
 
+// Submit journal entry
 submitBtn.addEventListener('click', async () => {
-  const entry = document.getElementById('journal-text').value;
+  const entry = document.getElementById('journal-text').value.trim();
   if (!entry) {
     alert("Please write something first.");
     return;
   }
 
-  responseBox.textContent = "Processing...";
+  responseBox.innerHTML = "Processing...";
   console.log("Submitting journal entry:", entry);
 
   try {
@@ -43,7 +44,12 @@ submitBtn.addEventListener('click', async () => {
 
     const data = await res.json();
     console.log("Response from server:", data);
-    responseBox.textContent = data.advice || "No advice returned.";
+
+    if (data.advice) {
+      responseBox.innerHTML = data.advice.replace(/\n/g, '<br>');
+    } else {
+      responseBox.textContent = "No advice returned.";
+    }
   } catch (err) {
     console.error("Error contacting backend:", err);
     responseBox.textContent = "Error processing request.";
